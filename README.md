@@ -1,4 +1,6 @@
+[![GitHub All Releases](https://img.shields.io/github/downloads/afkarxyz/SoundCloudGoPlusDownloader/total?style=for-the-badge)](https://github.com/afkarxyz/SoundCloudGoPlusDownloader/releases)
 
+![SoundCloudGoPlusDownloader](https://github.com/user-attachments/assets/a5a52cbe-b4b5-4459-844f-9caa222b79bf)
 
 <div align="center">
 <b>SoundCloud Go+ Downloader</b> is a GUI tool designed to help download SoundCloud tracks from <b>scloudplaylistdownloadermp3.com</b> without limits, with 256Kbps M4A quality.
