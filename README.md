@@ -10,11 +10,11 @@
 
 ## Screenshots
 
-![image](https://github.com/user-attachments/assets/55ebe136-7e9f-4a96-aa74-02183b5c2ab2)
+![image](https://github.com/user-attachments/assets/346ba1d6-d8b6-496e-8768-36ed8f14a74a)
 
-![image](https://github.com/user-attachments/assets/9e5c6562-38de-4aa2-9fe3-ec61f1972819)
+![image](https://github.com/user-attachments/assets/31e6dd16-2627-42ac-b9e8-476117426370)
 
-![image](https://github.com/user-attachments/assets/95f29d9f-4f5b-4522-a535-7d1e887d90ae)
+![image](https://github.com/user-attachments/assets/5db66282-c8ec-473c-8f76-63715878d95f)
 
 ## Use Your Own Cookies
 
