@@ -2,11 +2,13 @@ import sys
 import os
 import time
 from pathlib import Path
+import qdarktheme
+from packaging import version
 from PyQt6.QtWidgets import (QApplication, QMainWindow, QWidget, QVBoxLayout, 
                             QHBoxLayout, QLabel, QLineEdit, 
-                            QPushButton, QProgressBar, QFileDialog)
-from PyQt6.QtCore import QThread, pyqtSignal, Qt, QSettings
-from PyQt6.QtGui import QIcon, QPixmap, QCursor
+                            QPushButton, QProgressBar, QFileDialog, QDialog, QDialogButtonBox)
+from PyQt6.QtCore import QThread, pyqtSignal, Qt, QSettings, QTimer, QUrl
+from PyQt6.QtGui import QIcon, QPixmap, QCursor, QDesktopServices
 import requests
 from mutagen.mp4 import MP4, MP4Cover
 
@@ -173,9 +175,39 @@ class DownloaderWorker(QThread):
         except Exception as e:
             self.error.emit(f"Error: {str(e)}")
 
+class UpdateDialog(QDialog):
+    def __init__(self, current_version, new_version, parent=None):
+        super().__init__(parent)
+        self.setWindowTitle("Update Now")
+        self.setFixedWidth(400)
+        self.setModal(True)
+
+        layout = QVBoxLayout()
+
+        message = QLabel(f"SoundCloud Go+ Downloader v{new_version} Available!")
+        message.setWordWrap(True)
+        layout.addWidget(message)
+
+        button_box = QDialogButtonBox()
+        self.update_button = QPushButton("Check")
+        self.update_button.setCursor(Qt.CursorShape.PointingHandCursor)
+        self.cancel_button = QPushButton("Later")
+        self.cancel_button.setCursor(Qt.CursorShape.PointingHandCursor)
+        
+        button_box.addButton(self.update_button, QDialogButtonBox.ButtonRole.AcceptRole)
+        button_box.addButton(self.cancel_button, QDialogButtonBox.ButtonRole.RejectRole)
+        
+        layout.addWidget(button_box)
+
+        self.setLayout(layout)
+
+        self.update_button.clicked.connect(self.accept)
+        self.cancel_button.clicked.connect(self.reject)
+
 class SoundCloudGoPlusDownloaderGUI(QMainWindow):
     def __init__(self):
         super().__init__()
+        self.current_version = "1.1"
         self.settings = QSettings('SoundCloudGoPlusDownloader', 'Settings')
         self.setWindowTitle("SoundCloud Go+ Downloader")
         
@@ -189,6 +221,27 @@ class SoundCloudGoPlusDownloaderGUI(QMainWindow):
         self.init_ui()
         self._connect_signals()
         self.load_settings()
+        
+        self.check_for_updates = self.settings.value('check_for_updates', True, type=bool)
+        if self.check_for_updates:
+            QTimer.singleShot(0, self.check_updates)
+
+    def check_updates(self):
+        try:
+            response = requests.get("https://raw.githubusercontent.com/afkarxyz/SoundCloudGoPlusDownloader/refs/heads/main/version.json", timeout=10)
+            if response.status_code == 200:
+                data = response.json()
+                new_version = data.get("version")
+                
+                if new_version and version.parse(new_version) > version.parse(self.current_version):
+                    dialog = UpdateDialog(self.current_version, new_version, self)
+                    result = dialog.exec()
+                    
+                    if result == QDialog.DialogCode.Accepted:
+                        QDesktopServices.openUrl(QUrl("https://github.com/afkarxyz/SoundCloudGoPlusDownloader/releases"))
+                        
+        except Exception as e:
+            print(f"Error checking for updates: {e}")
         
     def _setup_window(self):
         icon_path = os.path.join(os.path.dirname(__file__), "icon.svg")
@@ -227,7 +280,7 @@ class SoundCloudGoPlusDownloaderGUI(QMainWindow):
         url_label.setFixedWidth(LABEL_WIDTH)
         
         self.url_input = QLineEdit()
-        self.url_input.setPlaceholderText("Please enter SoundCloud track URL")
+        self.url_input.setPlaceholderText("Enter SoundCloud URL")
         self.url_input.setClearButtonEnabled(True)
         
         self.fetch_button = QPushButton("Fetch")
@@ -543,6 +596,13 @@ class SoundCloudGoPlusDownloaderGUI(QMainWindow):
 
 def main():
     app = QApplication(sys.argv)
+    qdarktheme.setup_theme(
+        custom_colors={
+            "[dark]": {
+                "primary": "#2196F3",
+            }
+        }
+    )
     window = SoundCloudGoPlusDownloaderGUI()
     window.show()
     sys.exit(app.exec())
